@@ -1,26 +1,30 @@
-from flask import Blueprint, render_template, redirect, url_for, request
+from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_required, current_user
 from .models import User
 from . import db
+from werkzeug.security import generate_password_hash, check_password_hash
 
 auth = Blueprint('auth', __name__)
 
-@auth.route('/login')
+@auth.route('/login', methods = ['GET','POST'])
 def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('main.dashboard'))
-    user = request.form.get('user')
-    password = request.form.get('password')
-    method = request.form.get('method')
-    
-    user = User.query.filter_by(user=user).first()
-    
-    if not user or not user.password == password or not user.method == method:
-        flash('Please check your login details and try again.') #To do: add visuals to error messages
-        return redirect(url_for('auth.login'))
+    if request.method == 'GET':
+        return "Login"
+    if request.method == 'POST':
+        if current_user.is_authenticated:
+            return redirect(url_for('main.dashboard'))
+        user = request.form.get('user')
+        password = request.form.get('password')
+        method = request.form.get('method')
         
-    login_user(user)
-    return redirect(url_for('main.dashboard'))
+        user = User.query.filter_by(user=user).first()
+        
+        if not user or not check_password_hash(user.password, password) or not user.method == method:
+            flash('Please check your login details and try again.') #To do: add visuals to error messages
+            return redirect(url_for('auth.login'))
+            
+        login_user(user)
+        return redirect(url_for('main.dashboard'))
     
     
 
@@ -41,7 +45,7 @@ def admin_login():
         
         user = User.query.filter_by(user=user).first()
         
-        if not user or not user.password == password or not user.method == method:
+        if not user or not check_password_hash(user.password, password) or not user.method == method:
             flash('Please check your login details and try again.') #To do: add visuals to error messages
             return redirect(url_for('auth.login'))
             
@@ -61,7 +65,7 @@ def admin_signup():
             flash("User already exists.")
             return redirect(url_for('auth.admin_signup'))
             
-        new_user = User(name=name, password=password, method="") #password should be hashed client side for security
+        new_user = User(name=name, password=generate_password_hash(password), method="text", admin=True)
         
         db.session.add(new_user)
         db.session.commit()
@@ -88,7 +92,7 @@ def setup():
             flash("User already exists.")
             return redirect(url_for('auth.setup'))
             
-        new_user = User(name=name, password=password, method=method) #password should be hashed client side for security
+        new_user = User(name=name, password=generate_password_hash(password), method=method)
         
         db.session.add(new_user)
         db.session.commit()

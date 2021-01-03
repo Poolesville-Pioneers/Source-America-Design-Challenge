@@ -2,7 +2,7 @@ from flask import Blueprint
 from flask_login import login_required, current_user
 from . import db
 from .models import User, Shift, Job
-from SQLAlchemy import func
+from sqlalchemy.sql import func
 import csv
 
 main = Blueprint('main', __name__)
@@ -41,7 +41,7 @@ def clockout():
     if current_user.admin == True:
         return redirect(url_for('main.admin_dashboard'))
         
-   if request.method=='GET':
+    if request.method=='GET':
         return "Clock Out"
         
     else:
