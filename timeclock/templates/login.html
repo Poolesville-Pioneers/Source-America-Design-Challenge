@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Login Page{% endblock %}
+
+{% block content %}
+<div class='container'>
+<form  action="{{ url_for('login')}}" method="POST">
+    <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" class="form-control" name="username" id="username" aria-describedby="usernameHelp" required="true" placeholder="Enter username"/>
+        <small id="usernameHelp" class="form-text text-muted"></small>
+    </div>
+
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input type="text" class="form-control" name="password" id="password" aria-describedby="passwordHelp" required="true" placeholder="Enter password"/>
+        <small id="subjectHelp" class="form-text text-muted"></small>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Login</button>
+</form>
+</div>
+{% endblock %}

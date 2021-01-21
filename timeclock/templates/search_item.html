@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+  <h1>Selling:</h1>
+  <div class='container'>
+    <h3>Search Items</h3>
+    <form action="{{ url_for('search_item')}}" method="GET">
+
+        <div class="form-group">
+            <label for="item_name">Item Name</label>
+            <input type="text" class="form-control classname" name="item_name" id="item_name" aria-describedby="item_nameHelp" placeholder=" Enter item name" value="{{ item_name }}">
+            <small id="item_nameHelp" class="form-text text-muted"></small>
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+</div>
+
+
+    <div class="row">
+      <div class="col-12">
+          <div class="container">
+            {% for i in items %}
+            <div class="row mb-4">
+                <div class="col-1"> {{i.id}} </div>
+                <div class="col-6"> Sold By: <b><a href="{{ url_for('view_farmer', id=i.farmer.id) }}"> {{i.farmer.fname}} {{i.farmer.lname}} </a></b> </div>
+                <div class='col-5'>
+                  <span class="font-weight-light">&nbsp;&nbsp;&nbsp;{{ i.farmer.address }}</span> 
+                  </div>
+                <div class="col-1"></div>
+                <div class="col-6"> Item: {{i.item_name}} </div>
+                <div class="col-3"> &nbsp;&nbsp;&nbsp;Price($/lb): {{i.item_price}} </div>   
+                <img src="/static/images/{{ i.item_name }}.jpg" class="img-fluid" alt="Responsive image" width= 25%>  
+                <div class="col-12"> <hr/></div>
+            </div>
+            {% endfor %}
+          </div>
+      </div>
+
+    </div>
+  </div>
+{% endblock %}
