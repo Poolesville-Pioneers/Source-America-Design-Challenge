@@ -1,5 +1,5 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
-from flask_login import login_required, current_user
+from flask import Blueprint, render_template, redirect, url_for, request, flash, abort
+from flask_login import login_required, current_user, login_user, logout_user
 from .models import User
 from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -9,7 +9,7 @@ auth = Blueprint('auth', __name__)
 @auth.route('/login', methods = ['GET','POST'])
 def login():
     if request.method == 'GET':
-        return "Login"
+        return render_template("login.html")
     if request.method == 'POST':
         if current_user.is_authenticated:
             return redirect(url_for('main.dashboard'))
@@ -37,7 +37,7 @@ def logout():
 @auth.route('/admin-login', methods = ['GET','POST'])
 def admin_login():
     if request.method=='GET':
-        return "Admin Login"
+        return render_template('admin-login.html')
         
     if request.method=='POST':
         user = request.form.get('user')
@@ -45,7 +45,7 @@ def admin_login():
         
         user = User.query.filter_by(user=user).first()
         
-        if not user or not check_password_hash(user.password, password) or not user.method == method:
+        if not user or not check_password_hash(user.password, password):
             flash('Please check your login details and try again.') #To do: add visuals to error messages
             return redirect(url_for('auth.login'))
             
@@ -55,7 +55,7 @@ def admin_login():
 @auth.route('/admin-signup', methods = ['GET','POST'])
 def admin_signup():
     if request.method=='GET':
-        return "Admin Signup"
+        return render_template("admin-signup.html")
         
     if request.method=='POST':
         user = request.form.get('user')
@@ -65,7 +65,7 @@ def admin_signup():
             flash("User already exists.")
             return redirect(url_for('auth.admin_signup'))
             
-        new_user = User(name=name, password=generate_password_hash(password), method="text", admin=True)
+        new_user = User(user=user, password=generate_password_hash(password), method="text", admin=True)
         
         db.session.add(new_user)
         db.session.commit()
@@ -75,14 +75,15 @@ def admin_signup():
         
 
 @auth.route('/setup', methods=['GET','POST'])
-@login_required
 def setup():
-    if current_user.admin == False:
+    if not current_user.is_authenticated:
+        abort(403)
+    if not current_user.admin:
         flash("Please login with an authorized account")
         return redirect(url_for('auth.admin_login'))
         
     if request.method=='GET':
-        return 'Setup'
+        return render_template('setup.html')
     else:
         user = request.form.get('user')
         password = request.form.get('password')
@@ -92,7 +93,7 @@ def setup():
             flash("User already exists.")
             return redirect(url_for('auth.setup'))
             
-        new_user = User(name=name, password=generate_password_hash(password), method=method)
+        new_user = User(user=user, password=generate_password_hash(password), method=method)
         
         db.session.add(new_user)
         db.session.commit()

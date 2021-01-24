@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, render_template, redirect, url_for, request, flash, abort
 from flask_login import login_required, current_user
 from . import db
 from .models import User, Shift, Job
@@ -9,21 +9,21 @@ main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
-    return 'Index'
+    return render_template("base.html")
 
 @main.route('/dashboard')
 @login_required
 def dashboard():
-    return 'Dashboard'
+    return render_template('dashboard.html')
     
 @main.route('/clockin', methods = ['GET','POST'])
 @login_required
 def clockin():
-    if current_user.admin == True:
+    if current_user.admin:
         return redirect(url_for('main.admin_dashboard'))
         
     if request.method=='GET':
-        return "Clock In"
+        return render_template("clockin.html")
         
     else:
         job_id = request.form.get('id')
@@ -38,11 +38,11 @@ def clockin():
 @main.route('/clockout', methods = ['GET','POST'])
 @login_required
 def clockout():
-    if current_user.admin == True:
+    if current_user.admin:
         return redirect(url_for('main.admin_dashboard'))
         
     if request.method=='GET':
-        return "Clock Out"
+        return render_template("clockout.html")
         
     else:
     
@@ -56,20 +56,26 @@ def clockout():
         return redirect(url_for('main.dashboard'))
     
 @main.route('/admin-dashboard')
-@login_required
 def admin_dashboard():
-    return 'Admin Dashboard'
+    if current_user.is_authenticated:
+        if not current_user.admin:
+            flash("Please login with an authorized account")
+            return redirect(url_for('auth.admin_login'))
+        else:
+            return render_template('admin-dashboard.html')
+    abort(403)
 
 
 @main.route('/create-job', methods = ['GET','POST'])
-@login_required
 def create_job():
-    if current_user.admin == False:
+    if not current_user.is_authenticated:
+        abort(403)
+    if not current_user.admin:
         flash("Please login with an authorized account")
         return redirect(url_for('auth.admin_login'))
         
     if request.method=='GET':
-        return "Create Job"
+        return render_template("createjob.html")
         
     else:    
         
@@ -84,14 +90,15 @@ def create_job():
         return redirect(url_for('main.admin_dashboard'))
         
 @main.route('/update-wage', methods = ['GET','POST'])
-@login_required
 def update_wage():
-    if current_user.admin == False:
+    if not current_user.is_authenticated:
+        abort(403)
+    if not current_user.admin:
         flash("Please login with an authorized account")
         return redirect(url_for('auth.admin_login'))
         
     if request.method=='GET':
-        return "Update Wage"
+        return render_template("updatewage.html")
         
     else:    
         
@@ -110,14 +117,15 @@ def update_wage():
         return redirect(url_for('main.admin_dashboard'))
         
 @main.route('/clear-shifts', methods = ['GET', 'POST'])
-@login_required
 def clear_shifts():
-    if current_user.admin == False:
+    if not current_user.is_authenticated:
+        abort(403)
+    if not current_user.admin:
         flash("Please login with an authorized account")
         return redirect(url_for('auth.admin_login'))
     
     if request.method=='GET':
-        return "Clear Shifts"
+        return render_template("clearshifts.html")
         
     else:
         Shift.query.delete()
@@ -125,14 +133,15 @@ def clear_shifts():
         return redirect(url_for('main.admin_dashboard'))
         
 @main.route('/download', methods = ['GET', 'POST'])
-@login_required
 def download():
-    if current_user.admin == False:
+    if not current_user.is_authenticated:
+        abort(403)
+    if not current_user.admin:
         flash("Please login with an authorized account")
         return redirect(url_for('auth.admin_login'))
     
     if request.method=='GET':
-        return "Downloads"
+        return render_template("download.html")
         
     else:
         table = request.form.get('table')
