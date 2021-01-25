@@ -1,5 +1,5 @@
 from PIL import Image
-from imagehash import average_hash()
+from imagehash import average_hash
 
 def hashImage(image):
     return average_hash(Image.open(image), hashsize=64)
