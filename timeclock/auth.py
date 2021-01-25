@@ -3,6 +3,7 @@ from flask_login import login_required, current_user, login_user, logout_user
 from .models import User
 from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
+from .hash import hashImage
 
 auth = Blueprint('auth', __name__)
 
@@ -19,9 +20,27 @@ def login():
         
         user = User.query.filter_by(user=user).first()
         
-        if not user or not check_password_hash(user.password, password) or not user.method == method:
-            flash('Please check your login details and try again.') #To do: add visuals to error messages
-            return redirect(url_for('auth.login'))
+        if method == 'image':
+            ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+            # if user does not select file, browser also
+            # submit an empty part without filename
+            if password.filename == '':
+                flash('No selected file')
+                return redirect(url_for('auth.login'))
+            if password and password.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS:
+                if not user or not check_image_hash(user.password, password):
+                    flash('Please check your login details and try again.') #To do: add visuals to error messages
+                    return redirect(url_for('auth.login'))
+            else:
+                flash('Bad file type')
+                return redirect(url_for('auth.login'))
+            
+        elif method == "text":
+            if not user or not check_password_hash(user.password, password) or not user.method == method:
+                flash('Please check your login details and try again.') #To do: add visuals to error messages
+                return redirect(url_for('auth.login'))
+        
+        
             
         login_user(user)
         return redirect(url_for('main.dashboard'))
@@ -92,8 +111,22 @@ def setup():
         if User.query.filter_by(user=user).first():
             flash("User already exists.")
             return redirect(url_for('auth.setup'))
+        
+        if method == 'image':
+            ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+            # if user does not select file, browser also
+            # submit an empty part without filename
+            if password.filename == '':
+                flash('No selected file')
+                return redirect(url_for('auth.setup'))
+            if password and password.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS:
+                new_user = User(user=user, password=hashImage(password), method=method)
+            else:
+                flash('Bad file type')
+                return redirect(url_for('auth.setup'))
             
-        new_user = User(user=user, password=generate_password_hash(password), method=method)
+        elif method == "text":
+            new_user = User(user=user, password=generate_password_hash(password), method=method)
         
         db.session.add(new_user)
         db.session.commit()
