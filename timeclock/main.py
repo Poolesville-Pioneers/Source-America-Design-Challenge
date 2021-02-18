@@ -1,20 +1,21 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash, abort
+from flask import Blueprint, render_template, redirect, url_for, request, flash, abort, send_from_directory
 from flask_login import login_required, current_user
 from . import db
 from .models import User, Shift, Job
 from sqlalchemy.sql import func
 import csv
+import os
 
 main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
-    return render_template("base.html")
+    return render_template("home.html")
 
 @main.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html')
+    return render_template('dashboard.html', jobs=get_jobs(), shift=get_current_shift())
     
 @main.route('/clockin', methods = ['GET','POST'])
 @login_required
@@ -23,7 +24,7 @@ def clockin():
         return redirect(url_for('main.admin_dashboard'))
         
     if request.method=='GET':
-        return render_template("clockin.html")
+        return render_template("dashboard.html", jobs=get_jobs())
         
     else:
         job_id = request.form.get('id')
@@ -35,6 +36,14 @@ def clockin():
         
         return redirect(url_for('main.dashboard'))
         
+def get_jobs():
+    jobs = Job.query.all()
+    return jobs
+
+def get_current_shift():
+    shift = Shift.query.filter_by(employee=current_user.id).filter_by(end=None).first()
+    return shift
+    
 @main.route('/clockout', methods = ['GET','POST'])
 @login_required
 def clockout():
@@ -42,16 +51,18 @@ def clockout():
         return redirect(url_for('main.admin_dashboard'))
         
     if request.method=='GET':
-        return render_template("clockout.html")
+        return render_template("dashboard.html")
         
     else:
-    
-        id = request.form.get('id')
+        #I replaced these with the get_current_shift() method
+        #id = request.form.get('id')
         
-        shift = Shift.query.filter_by(job=job_id).filter_by(employee=current_user.id).all()[-1]
+        #shift = Shift.query.filter_by(job=job_id).filter_by(employee=current_user.id).all()[-1]
         
+        shift = get_current_shift()
         setattr(shift, 'end', func.now())
         db.session.commit()
+        flash('Clocked out successfully')
         
         return redirect(url_for('main.dashboard'))
     
@@ -122,10 +133,10 @@ def clear_shifts():
         abort(403)
     if not current_user.admin:
         flash("Please login with an authorized account")
-        return redirect(url_for('auth.admin_login'))
+        return redirect(url_for('auth.index'))
     
     if request.method=='GET':
-        return render_template("clearshifts.html")
+        return render_template("admin-dashboard.html")
         
     else:
         Shift.query.delete()
@@ -138,10 +149,11 @@ def download():
         abort(403)
     if not current_user.admin:
         flash("Please login with an authorized account")
-        return redirect(url_for('auth.admin_login'))
-    
+        return redirect(url_for('auth.index'))
+
+
     if request.method=='GET':
-        return render_template("download.html")
+        return render_template("admin-dashboard.html")
         
     else:
         table = request.form.get('table')
@@ -152,10 +164,14 @@ def download():
             model = Job
         else:
             model = Shift
+            table = "shift"
         
-        records = session.query(Shift).all()
+        records = model.query.all()
         
-        outfile = open('tmp/' + table + '.csv', 'wb')
+        print('current directory =',os.getcwd())
+        outfile_name = r'TimeClock\static\shift.csv'
+        outfile_name2 = r'shift.csv'
+        outfile = open(outfile_name, 'w')
         outcsv = csv.writer(outfile)
         
         outcsv.writerow([column.name for column in model.__mapper__.columns])
@@ -163,7 +179,7 @@ def download():
 
         outfile.close()
         
-        return send_from_directory('tmp/', table + '.csv', as_attachment=True)
+        return send_from_directory('static', outfile_name2, as_attachment=True)
     
 
     
