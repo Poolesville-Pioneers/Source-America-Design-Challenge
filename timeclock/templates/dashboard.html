@@ -1,3 +1,8 @@
+<!-- TODO
+Don't select the first item in jobs by default
+instead display < NONE > or something so people
+know to select the correct job
+-->
 {% extends "base.html" %}
 {% block title %}Dashboard{% endblock %}
 
@@ -7,5 +12,31 @@
         Dashboard
     </h2>
 </div>
+
+
+{% if shift is none %}
+<div class='container'>
+    <form action="{{ url_for('main.clockin')}}" method="POST">
+        <div class="form-group">
+            <label for="id">Job</label>
+            <select class="form-control" name="id" id="id" aria-describedby="idHelp" required="true" placeholder="Select a Job" value="Select a Job"> 
+            <small id="usernameHelp" class="form-text text-muted"></small>
+            {% for j in jobs %}
+                <option value="{{ j.id }}" 
+            >{{ j.name }}</option>
+            {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Clockin</button>
+    </form>
+    </div>
+{% else %}
+<div class='container'>
+    <form action="{{ url_for('main.clockout')}}" method="POST">
+        <button type="submit" class="btn btn-primary">Clockout</button>
+    </form>
+
+{% endif %}
 
 {% endblock %}

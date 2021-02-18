@@ -33,7 +33,7 @@
                     <div class="collapse navbar-collapse" id="navbarNav"></div>
                 {% endif %}
 
-                <a class="navbar-brand" href="{{ url_for('auth.logout') }}">Logout</a>
+                <a class="navbar-brand" href="{{ url_for('auth.logout') }}">Logout: {{ current_user.user }}</a> 
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
                 </button>
@@ -69,6 +69,16 @@
 </div>
 
 <div class="container-fluid">
+    {% block flash %}
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class='container-fluid'>
+                <p class="text-center">{{ messages[0] }}</p>
+            </div>
+        {% endif %}
+        {% endwith %}
+    {% endblock %}
+
     {% block content %}
     {% endblock %}
 </div>
