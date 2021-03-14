@@ -8,14 +8,26 @@
     </h2>
 
     <div class='container'>
+        <a class="btn btn-primary" href="{{ url_for('main.employees') }}" role="button">View Employees</a>
+    </div>
+    <br>
+    <div class='container'>
+        <a class="btn btn-primary" href="{{ url_for('main.jobs') }}" role="button">View Jobs</a>
+    </div>
+
+    <br>
+    <div class='container'>
         <form action="{{ url_for('main.download')}}" method="POST">
             <button type="submit" class="btn btn-secondary">Download Shift Data</button>
         </form>
+    </div>
 
     <div class='container'>
         <form action="{{ url_for('main.clear_shifts')}}" method="POST">
             <button type="submit" class="btn btn-danger">Clear Shifts</button>
         </form>    
+    </div>
+
 </div>
 
 {% endblock %}

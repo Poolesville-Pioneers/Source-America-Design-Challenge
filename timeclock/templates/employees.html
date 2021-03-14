@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Employees{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="py-5 text-center">
+        Employees
+    </h2>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="container">
+            <div class='container'>
+                <a class="btn btn-primary" href="{{ url_for('auth.setup') }}" role="button">Add New Employee</a>
+            </div>
+            <br>
+            {% for e in employees %}
+                <div class="row mb-4">
+                    <div class="col-3"> <h5>{{e.id}} </h5>
+                    <img src="/static/images/User.png" alt="User" class="img-thumbnail"></div>
+                    <div class="col-9"> <h3>{{e.user}} </h3>  
+                    <br><br><br>
+                    <a class="btn btn-primary" href="{{ url_for('main.update_employee', id=e.id) }}">Edit</a>
+                    |
+                    <a class="btn btn-danger" href="{{ url_for('main.delete_employee', id=e.id) }}">Delete</a>
+                    </div>
+                </div>
+
+          {% endfor %}
+        </div>
+    </div>
+
+  </div>
+
+
+
+
+{% endblock %}

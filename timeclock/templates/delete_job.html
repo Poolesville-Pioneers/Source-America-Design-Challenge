@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Delete Job{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="py-5 text-center">
+        Delete Job
+    </h2>
+<div class='container'>
+    <form action="{{ url_for('main.cmd_delete_job')}}" method="POST">
+
+        <div class="form-group">
+            <label for="id">ID</label>
+            <input type="text" readonly class="form-control classname" name="id" id="id" aria-describedby="idHelp" placeholder="Enter ID" value="{{ id }}">
+            <small id="idHelp" class="form-text text-muted"></small>
+        </div>
+
+        <div class="form-group">
+        <label for="confirm">Confirm</label>
+        <input type="text" class="form-control" name="confirm" id="confirm" aria-describedby="confirmHelp" placeholder="please enter DELETE to confirm">
+        <small id="confirmHelp" class="form-text text-muted"></small>
+        </div>
+
+
+
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+</div>
+{% endblock %}

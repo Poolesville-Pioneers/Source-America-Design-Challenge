@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Jobs{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="py-5 text-center">
+        Jobs
+    </h2>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="container">
+            <div class='container'>
+                <a class="btn btn-primary" href="{{ url_for('main.create_job') }}" role="button">Create New Job</a>
+            </div>
+            <br>
+            {% for j in jobs %}
+                <div class="row mb-4">
+                    <div class="col-3"> <h5>{{j.id}} </h5>
+                    <img src="/static/images/{{j.name}}.png" alt="{{ j.name }}" class="img-thumbnail"></div>
+                    <div class="col-9"> <h3>{{j.name}} </h3><h5>{{j.wage}}$/hour </h5>  
+                    <br><br><br>
+                    <a class="btn btn-primary" href="{{ url_for('main.update_job', id=j.id) }}">Edit</a>
+                         |
+                    <a class="btn btn-danger" href="{{ url_for('main.delete_job', id=j.id) }}">Delete</a>
+                    </div>
+                </div>
+
+          {% endfor %}
+        </div>
+    </div>
+
+  </div>
+
+
+
+{% endblock %}

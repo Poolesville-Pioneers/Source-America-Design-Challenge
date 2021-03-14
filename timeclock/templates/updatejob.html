@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Edit Job Information{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="py-5 text-center">
+        Edit Job Information
+    </h2>
+
+    <div class='container'>
+        <form action="{{ url_for('main.cmd_update_job')}}" method="POST">  
+            <div class="form-group">
+                <label for="id">ID</label>
+                <input type="text" readonly class="form-control classname" name="id" 
+                    id="id" aria-describedby="idHelp" placeholder="Enter ID" value="{{ job.id }}">
+                <small id="idHelp" class="form-text text-muted"></small>
+            </div>
+
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" class="form-control" name="name" id="name" aria-describedby="nameHelp" placeholder="Enter job name" value="{{ job.name }}">
+                <small id="nameHelp" class="form-text text-muted"></small>
+            </div>
+        
+            <div class="form-group">
+                <label for="wage">Wage</label>
+                <input type="wage" class="form-control" name="wage" id="wage" aria-describedby="wageHelp" placeholder="Enter job wage" value="{{ job.wage }}">
+                <small id="wageHelp" class="form-text text-muted"></small>
+            </div>  
+
+            <button type="submit" class="btn btn-primary">Save</button>
+        </form>                      
+    </div>
+</div>
+
+{% endblock %}
