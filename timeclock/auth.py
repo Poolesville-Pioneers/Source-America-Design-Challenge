@@ -43,9 +43,10 @@ def login():
         
             
         login_user(user)
-        if not current_user.admin:
+        if current_user.admin:
+            return redirect(url_for('main.admin_dashboard'))
+        else:
             return redirect(url_for('main.dashboard'))
-        return redirect(url_for('main.admin_dashboard'))
     
     
 
